@@ -16,7 +16,6 @@ Date.prototype.timeNow = function () {
 };
 
 var contentNode = document.getElementById('contents');
-var activities = [];
 
 // Child does not have access to the parent's method.
 // Need to pass callbacks from the parent to the child, which it can call to achieve specific tasks.
@@ -177,31 +176,65 @@ var ActivityList = function (_React$Component2) {
             this.loadData();
         }
 
-        // uses the global issues list to set the state
+        // fetch() takes in the path of the URL to be fetched 
+        // and returns a promise with the rseponse as the value
+        // the response is parsed using json() which returns a promise with the value as the parsed data
+        // The parsed data reflects what is sent from the server
 
     }, {
         key: "loadData",
         value: function loadData() {
             var _this3 = this;
 
-            setTimeout(function () {
-                _this3.setState({ activities: activities });
-            }, 500);
+            fetch('/api/activities').then(function (response) {
+                return response.json();
+            }).then(function (data) {
+                console.log("Total count of records:", data._metadata.total_count);
+                // forEach loop to do conversion
+                data.records.forEach(function (activity) {
+                    activity.date = new Date(activity.date);
+                });
+                _this3.setState({ activities: data.records });
+            }).catch(function (err) {
+                console.log(err);
+            });
         }
 
         // setState tirggers rerendering process for the component
         // and all descendent components where properties get affected because of the state change.
         // ActivityTable and ActivityRow will be rerendered, and when they are,
         // their properties will reflect the new state of the parent ActivityList component automatically.
+        // ---
+        // fetch() API for POST methods need an options object in the second parameter,
+        // which include the method, the Content Type header, and the body in JSON representation.
+        // With the JSON representation of the new activity created received back from the server,
+        // the new state is set by appending the new activity to the existing list of activities.
 
     }, {
         key: "createNewActivity",
         value: function createNewActivity(newActivity) {
-            var newActivities = this.state.activities.slice();
-            newActivity.id = this.state.activities.length + 1;
-            newActivity.date = new Date();
-            newActivities.push(newActivity);
-            this.setState({ activities: newActivities });
+            var _this4 = this;
+
+            fetch('/api/activities', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newActivity)
+            }).then(function (response) {
+                // check the response's property response.ok to detect a non-success HTTP status code
+                if (response.ok) {
+                    response.json().then(function (updatedActivity) {
+                        updatedActivity.date = new Date(updatedActivity.date);
+                        var newActivities = _this4.state.activities.concat(updatedActivity);
+                        _this4.setState({ activities: newActivities });
+                    });
+                } else {
+                    response.json().then(function (error) {
+                        alert("Failed to add activity: " + error.message);
+                    });
+                }
+            }).catch(function (err) {
+                alert("Error in sending data to server: " + err.message);
+            });
         }
 
         // passing the data from the state to the IssueTable via properties
