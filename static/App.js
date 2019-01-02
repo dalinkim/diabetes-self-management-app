@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -7,6 +7,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+Date.prototype.today = function () {
+    return (this.getMonth() < 10 ? "0" : "") + (this.getMonth() + 1) + "/" + (this.getDate() + 1 < 10 ? "0" : "") + this.getDate() + "/" + this.getFullYear();
+};
+Date.prototype.timeNow = function () {
+    return (this.getHours() < 10 ? "0" : "") + this.getHours() + ":" + (this.getMinutes() < 10 ? "0" : "") + this.getMinutes() + ":" + (this.getSeconds() < 10 ? "0" : "") + this.getSeconds();
+};
 
 var contentNode = document.getElementById('contents');
 
@@ -42,31 +49,31 @@ var ActivityRow = function (_React$Component) {
     }
 
     _createClass(ActivityRow, [{
-        key: 'render',
+        key: "render",
         value: function render() {
             var activity = this.props.activity;
-            var date = activity.date.today() + ' ' + activity.date.timeNow();
+            var date = activity.date.today() + " " + activity.date.timeNow();
 
             return React.createElement(
-                'tr',
+                "tr",
                 null,
                 React.createElement(
-                    'td',
+                    "td",
                     null,
                     activity.id
                 ),
                 React.createElement(
-                    'td',
+                    "td",
                     null,
                     date
                 ),
                 React.createElement(
-                    'td',
+                    "td",
                     null,
                     activity.activity_type
                 ),
                 React.createElement(
-                    'td',
+                    "td",
                     null,
                     activity.value
                 )
@@ -87,44 +94,44 @@ var ActivityTable = function (_React$Component2) {
     }
 
     _createClass(ActivityTable, [{
-        key: 'render',
+        key: "render",
         value: function render() {
             var activityRows = this.props.activities.map(function (activity) {
                 return React.createElement(ActivityRow, { key: activity.id, activity: activity });
             });
             return React.createElement(
-                'table',
-                { className: 'bordered-table' },
+                "table",
+                { className: "bordered-table" },
                 React.createElement(
-                    'thead',
+                    "thead",
                     null,
                     React.createElement(
-                        'tr',
+                        "tr",
                         null,
                         React.createElement(
-                            'th',
+                            "th",
                             null,
-                            'Id'
+                            "Id"
                         ),
                         React.createElement(
-                            'th',
+                            "th",
                             null,
-                            'Date'
+                            "Date"
                         ),
                         React.createElement(
-                            'th',
+                            "th",
                             null,
-                            'Activity Type'
+                            "Activity Type"
                         ),
                         React.createElement(
-                            'th',
+                            "th",
                             null,
-                            'Value'
+                            "Value"
                         )
                     )
                 ),
                 React.createElement(
-                    'tbody',
+                    "tbody",
                     null,
                     activityRows
                 )
@@ -145,17 +152,17 @@ var ActivityList = function (_React$Component3) {
     }
 
     _createClass(ActivityList, [{
-        key: 'render',
+        key: "render",
         value: function render() {
             return React.createElement(
-                'div',
+                "div",
                 null,
                 React.createElement(
-                    'h1',
+                    "h1",
                     null,
-                    'Diabetes Self Managment App'
+                    "Diabetes Self Managment App"
                 ),
-                React.createElement('hr', null),
+                React.createElement("hr", null),
                 React.createElement(ActivityTable, { activities: activities })
             );
         }
@@ -166,15 +173,8 @@ var ActivityList = function (_React$Component3) {
 
 ReactDOM.render(React.createElement(ActivityList, null), contentNode);
 
-// ActivityRow.propTypes = {
-//     date: React.PropTypes.instanceOf(Date),
-//     activity_type: React.PropTypes.string,
-//     value: React.PropTypes.string
-// };
-
-Date.prototype.today = function () {
-    return (this.getMonth() < 10 ? "0" : "") + (this.getMonth() + 1) + "/" + (this.getDate() + 1 < 10 ? "0" : "") + this.getDate() + "/" + this.getFullYear();
-};
-Date.prototype.timeNow = function () {
-    return (this.getHours() < 10 ? "0" : "") + this.getHours() + ":" + (this.getMinutes() < 10 ? "0" : "") + this.getMinutes() + ":" + (this.getSeconds() < 10 ? "0" : "") + this.getSeconds();
+ActivityRow.propTypes = {
+    date: React.PropTypes.instanceOf(Date),
+    activity_type: React.PropTypes.string,
+    value: React.PropTypes.string
 };

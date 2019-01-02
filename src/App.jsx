@@ -1,3 +1,14 @@
+Date.prototype.today = function () {
+    return ((this.getMonth() < 10) ? "0" : "") + (this.getMonth() + 1) + "/" 
+            + (((this.getDate() + 1) < 10) ? "0" : "") + this.getDate() 
+            + "/" + this.getFullYear();
+}
+Date.prototype.timeNow = function () {
+    return ((this.getHours() < 10) ? "0" : "") + this.getHours() + ":" 
+            + ((this.getMinutes() < 10) ? "0" : "") + this.getMinutes() + ":" 
+            + ((this.getSeconds() < 10) ? "0" : "") + this.getSeconds();
+}
+
 const contentNode = document.getElementById('contents');
 
 const activities = [
@@ -76,19 +87,8 @@ class ActivityList extends React.Component {
 
 ReactDOM.render(<ActivityList />, contentNode);
 
-// ActivityRow.propTypes = {
-//     date: React.PropTypes.instanceOf(Date),
-//     activity_type: React.PropTypes.string,
-//     value: React.PropTypes.string
-// };
-
-Date.prototype.today = function () {
-    return ((this.getMonth() < 10) ? "0" : "") + (this.getMonth() + 1) + "/" 
-            + (((this.getDate() + 1) < 10) ? "0" : "") + this.getDate() 
-            + "/" + this.getFullYear();
-}
-Date.prototype.timeNow = function () {
-    return ((this.getHours() < 10) ? "0" : "") + this.getHours() + ":" 
-            + ((this.getMinutes() < 10) ? "0" : "") + this.getMinutes() + ":" 
-            + ((this.getSeconds() < 10) ? "0" : "") + this.getSeconds();
-}
+ActivityRow.propTypes = {
+    date: React.PropTypes.instanceOf(Date),
+    activity_type: React.PropTypes.string,
+    value: React.PropTypes.string
+};
