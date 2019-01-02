@@ -1,0 +1,29 @@
+{
+  "name": "diabetes-self-management",
+  "version": "1.0.0",
+  "description": "mern-stack",
+  "main": "index.js",
+  "scripts": {
+    "compile": "node_modules/.bin/babel src --presets react,es2015 --out-dir static",
+    "watch": "node_modules/.bin/babel src --presets react,es2015 --out-dir static -watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dalinkim/diabetes-self-management-app.git"
+  },
+  "author": "Dalin Kim",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dalinkim/diabetes-self-management-app/issues"
+  },
+  "homepage": "https://github.com/dalinkim/diabetes-self-management-app#readme",
+  "dependencies": {
+    "express": "^4.14.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.11.4",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.11.1"
+  }
+}
