@@ -1,24 +1,50 @@
 # diabetes-self-management-app
 
-<b>Express-REST-API-for-Diabetes-Self-Management-App</b><br>
-Modifying the web app to store activity data in and fetch it from a node.js server. This node.js server supports REST API to fetch all the activities stored in memory of the server and also to create a new activity. The application front end is modified to use this API.<br>
+<b>MongoDB-for-Diabetes-Self-Management-App</b><br>
+Modifying the server code of the diabetes self management app so that it uses a MongoDB database to store its data. Also the front end code is updated so that it works correctly with the modified server.<br>
 
-REST (representational state transfer) is an architectural pattern for application programming interfaces (APIs). APIs are resource based, and resources are accessed based on a Uniform Resource Identifier (URI), aka an endpoint. To access and manipulate the resources, you use HTTP methods: GET, POST, PUT, PATCH, DELETE, and etc.<br>
+MongoDB Basics<br>
+MongoDB is a document database. (record = document or object)<br>
+A document is a data structure composed of field and value pairs.<br>
+Compared to a JSON object, a MongoDB document has support not only for the primitive data types boolean, numbers, and strings, but also other common data types such as dates, timestamps, regular expressions, and binary data.<br>
 
-<b>Express is a web application framework</b> which relies on other modules (middleware) to provide the functionality that most applications will need.<br>
-Routing: Express takes a client request, matches it against any routes that are present, and executes the handler function that is associated with that route.<br>
-Request Matching: When a request is received, request's method is matched with the route method.<br>
-Route Parameters: named segments in the path specification that match a part of the URL.<br>
-Route Lookup: Router match all routes in the order in which thy are installed so add more generic patern <i>after</i> the specific paths.<br>
+Collections<br>
+Collections is like a table in a relational database. It is a set of documents, and you access each document via the collection. Primary key is mandated in MongoDB with the reserved field name _id.
+Unlike a relational database, MongoDB does not require you to define a schema for a collection but just a unique _id. Actual documents may have completely different fields.<br>
 
-Middleware functions: have access to the request object(req), the response object(res), and the next middleware function in the application's request-response cycle. Middleware can be at the application level (applies to all request) or the router level (applies to specific request path patterns).<br>
+Query Languages<br>
+Unlike SQL, MongoDB query language is made up of methods to achieve various operations.
+Unlike relational databases, no method that can operate on multiple collections at once. If needed, each collection has to be queried separately and manipulated by the client.<br>
+Unlike relational databases, MongoDB encourages denormalization - storing related parts of a document as embedded subdocuments rather than as separate collections (tables) in a relational database.<br>
 
-The List API: lists all activities. List of activities are stored in the server's memory, and the get route to the application is added, which sends out the global array of activities as a JSON using res.json(). nodemon package is used to automatically restart the server on changes.<br>
+The Mongo Shell<br>
+db; use 'db name'; show databases; show collections;<br>
+db.employees.insert({...}); db.employees.find().pretty();<br>
+supplying filter .find({ filter })<br>
+restrict returned fields with second parameter .find({ filter }, { restriction })<br>
+update a document .update({ filter }, {$set: { fields to update }})<br>
+.remove({ filter })<br>
 
-The Create API: creates a new activity. For POST, request body will contain the new activity object to be created. Express does not have an in-built parser that can parse request bodies to convert them into objects so body-parser npm package is used. Need to let Express know that this middleware should be used so that it can intercept request, look at the content type, and deal with the body appropriately. New activity is added from the request body (which is parsed by body-parser) and it is returned as a response to the request.<br>
+Shell Scripting<br>
+mongo shell script is a regular JS program, with all the collection methods available as built-ins. One difference from interactive shell is that you don't have the convenience commands such as use and the default global variable db. You must initialize them within the shell script programmatcially.<br>
 
-Using the List API: use the List API in the application front end and replace the in-memory list of activities. To use the APIs, need to maek asynchronous API calls or Ajax calls. Modern browsers support asynchronous calls natively via the Fetch API. fetch() takes in the path of the URL to be fetched and returns a promise with the response as the value. loadData() in ActivityList component is modified.<br> 
+Schema Initialization<br>
+No such thing as schema initialization but just create indexes that will prove useful for often used filters in the application.<br>
 
-Using the Create API: modify createIssue in ActivityList component to send new activity to the server and use the updated activity returned by the server to append to the list of activities. fetch() API for POST methods need an options object in the second parameter, which include the method, the Content Type header, and the body in JSON representation. With the JSON representation of the new activity created received back from the server, the new state is set by appending the new activity to the existing list of activities.<br>
+MongoDB Node.js Driver<br>
+This is the Node.js driver that lets you connect and interact with the MongoDB server. (mongodb module from npm) To connect to the database from a Node.js program, use the connect method on the MongoClient object provided by the module.<br>
+Use connect(URL-like string parameter, callback) to connect<br>
+collection() to get a handle to any collection<br>
+find() returns a cursor which you could iterate over
+toArray() on the cursur runs through all the documents and make an array out of them. It calls the callback when the array is ready to be processed, passing the array as a parameter to the callback.<br>
+ALl calls to the driver are asynchronous calls - you don't get the result of the call as a return value to the function call.<br>
+Different paradigms for dealing with this asynchronous natutre: callbacks, promises, or co module and generator functions. (also async module)<br>
 
-Error Handling: error handling in the Create API. Using 422 Unprocessable Entity as the error status code. Return an object with a single property called message that holds a readable as the description. At the server: simply set the status using res.status() and send the error message as the response. At the client, code is modified to detect a non-success HTTP status code. Fetch API does not throw an error for failure HTTP status codes so must check the response's property, response.ok.
+Reading from MongoDB<br>
+Include the MongoDB driver in the server.js and connect to MongoDB server.<br>
+Express server is started once we get the connection to MongoDB.
+Endpoint handler is modified to read from the database. Front end is updated with the MongoDB _id field and now handles possible non-successful HTTP status code from the List API.<br>
+
+Writing to MongoDB<br>
+Using MongoDB's insert method to create a new record in the Create API.<br>
+Need to read back the object that was just created and return it as the result of the API call.

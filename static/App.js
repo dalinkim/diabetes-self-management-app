@@ -88,7 +88,7 @@ var ActivityRow = function ActivityRow(props) {
         React.createElement(
             "td",
             null,
-            props.activity.id
+            props.activity._id
         ),
         React.createElement(
             "td",
@@ -112,7 +112,7 @@ var ActivityRow = function ActivityRow(props) {
 // stateless component rewritten as a function rather than a class
 var ActivityTable = function ActivityTable(props) {
     var activityRows = props.activities.map(function (activity) {
-        return React.createElement(ActivityRow, { key: activity.id, activity: activity });
+        return React.createElement(ActivityRow, { key: activity._id, activity: activity });
     });
     return React.createElement(
         "table",
@@ -180,6 +180,9 @@ var ActivityList = function (_React$Component2) {
         // and returns a promise with the rseponse as the value
         // the response is parsed using json() which returns a promise with the value as the parsed data
         // The parsed data reflects what is sent from the server
+        // ---
+        // List API can return a non-successful HTTP status code now using MongoDB
+        // should be handled in the front end as well
 
     }, {
         key: "loadData",
@@ -187,14 +190,20 @@ var ActivityList = function (_React$Component2) {
             var _this3 = this;
 
             fetch('/api/activities').then(function (response) {
-                return response.json();
-            }).then(function (data) {
-                console.log("Total count of records:", data._metadata.total_count);
-                // forEach loop to do conversion
-                data.records.forEach(function (activity) {
-                    activity.date = new Date(activity.date);
-                });
-                _this3.setState({ activities: data.records });
+                if (response.ok) {
+                    response.json().then(function (data) {
+                        console.log("Total count of records:", data._metadata.total_count);
+                        // forEach loop to do conversion
+                        data.records.forEach(function (activity) {
+                            activity.date = new Date(activity.date);
+                        });
+                        _this3.setState({ activities: data.records });
+                    });
+                } else {
+                    response.json().then(function (error) {
+                        alert("Failed to fetch activities:" + error.message);
+                    });
+                }
             }).catch(function (err) {
                 console.log(err);
             });

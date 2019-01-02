@@ -52,7 +52,7 @@ class ActivityAdd extends React.Component {
 // stateless component rewritten as a function rather than a class
 const ActivityRow = (props) => (
     <tr>
-        <td>{props.activity.id}</td>
+        <td>{props.activity._id}</td>
         <td>{`${props.activity.date.today()} ${props.activity.date.timeNow()}`}</td>
         <td>{props.activity.activity_type}</td>
         <td>{props.activity.value}</td>
@@ -63,7 +63,7 @@ const ActivityRow = (props) => (
 // stateless component rewritten as a function rather than a class
 const ActivityTable = (props) => {
     const activityRows = props.activities.map(activity =>
-        <ActivityRow key={activity.id} activity={activity} />);
+        <ActivityRow key={activity._id} activity={activity} />);
     return (
         <table className="bordered-table">
             <thead>
@@ -96,16 +96,26 @@ class ActivityList extends React.Component {
     // and returns a promise with the rseponse as the value
     // the response is parsed using json() which returns a promise with the value as the parsed data
     // The parsed data reflects what is sent from the server
+    // ---
+    // List API can return a non-successful HTTP status code now using MongoDB
+    // should be handled in the front end as well
     loadData() {
-        fetch('/api/activities').then(response =>
-            response.json()
-        ).then(data => {
-            console.log("Total count of records:", data._metadata.total_count);
-            // forEach loop to do conversion
-            data.records.forEach(activity => {
-                activity.date = new Date(activity.date);
-            });
-            this.setState({ activities: data.records });
+        fetch('/api/activities').then(response => {
+            if (response.ok) {
+                response.json()
+                .then(data => {
+                    console.log("Total count of records:", data._metadata.total_count);
+                    // forEach loop to do conversion
+                    data.records.forEach(activity => {
+                        activity.date = new Date(activity.date);
+                    });
+                    this.setState({ activities: data.records });
+                });
+            } else {
+                response.json().then(error => {
+                    alert("Failed to fetch activities:" + error.message);
+                });
+            }
         }).catch(err => {
             console.log(err);
         });
