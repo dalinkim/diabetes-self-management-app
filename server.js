@@ -1,23 +1,35 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const MongoClient = require('mongodb').MongoClient;
 
 const app = express();
 app.use(express.static('static'));
 app.use(bodyParser.json());
 
+// const activities = [];
+
 // adding get route to the application
 // which sends out the global array of activities as a JSON using res.json()
 // sets up a route so that any request to the specified URI is handled by the given handler
 // JSON string representation of the object is sent out.
+// ---
+// 07-endpoint handler is modified to read from the database.
+// call find() on the activities collection, convert it to an array, and return the documents
 app.get('/api/activities', (req, res) => {
-    const metadata = { total_count: activities.length };
-    res.json({ _metadata: metadata, records: activities });
+    db.collection('activities').find().toArray()
+    .then(activities => {
+        const metadata = { total_count: activities.length };
+        res.json({ _metadata: metadata, records: activities });
+    // skipping catch block results in any runtime error within any of the blocks to not be caught
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({ message: `Internal Server Error: ${error}` });
+    });
 });
 
 // adding server-side validation
 // kind of schema definition to indicate what is a valid Issue object
 const activityFieldType = {
-    id: 'required',
     date: 'required',
     activity_type: 'required',
     value: 'required',
@@ -41,7 +53,6 @@ function validateActivity(activity) {
 // return newly created activity as the result of the operation.
 app.post('/api/activities', (req, res) => {
     const newActivity = req.body;
-    newActivity.id = activities.length + 1;
     newActivity.date = new Date();
 
     const err = validateActivity(newActivity);
@@ -50,12 +61,25 @@ app.post('/api/activities', (req, res) => {
         return;
     }
 
-    activities.push(newActivity);
-    res.json(newActivity);
+    // writing to MongoDB
+    db.collection('activities').insertOne(newActivity).then(result => 
+        db.collection('activities').find({ _id: result.insertedId }).limit(1).next()
+    ).then(newActivity => {
+        res.json(newActivity);
+    }).catch(error => {
+        console.log(error);
+        res.status(500).json({ message: `Internal Server Error: ${error}` });
+    });
 });
 
-app.listen(3000, function () {
-    console.log('App started on port 3000');
-});
 
-const activities = [];
+let db;
+MongoClient.connect('mongodb://localhost/diabetesSelfManagement')
+.then(connection => {
+    db = connection;
+    app.listen(3000, function () {
+        console.log('App started on port 3000');
+    });
+}).catch(error => {
+    console.log('ERROR:', error);
+});
