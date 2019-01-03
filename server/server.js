@@ -1,6 +1,9 @@
+'use restrict';
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
+const Activity = require('./activity.js');
 
 const app = express();
 app.use(express.static('static'));
@@ -27,35 +30,13 @@ app.get('/api/activities', (req, res) => {
     });
 });
 
-// adding server-side validation
-// kind of schema definition to indicate what is a valid Issue object
-const activityFieldType = {
-    date: 'required',
-    activity_type: 'required',
-    value: 'required',
-};
-
-// checks against the above specification and returns an error if validation fails.
-function validateActivity(activity) {
-    for (const field in activityFieldType) {
-        const type = activityFieldType[field];
-        if (!type) { 
-            // deletes any fields that do not belong, simply ignoring them.
-            delete activity[field];
-        } else if (type === 'required' && !activity[field]) {
-            return `${field} is required.`;
-        }
-    }
-    return null;
-}
-
 // adding route for POST to the endpoint
 // return newly created activity as the result of the operation.
 app.post('/api/activities', (req, res) => {
     const newActivity = req.body;
     newActivity.date = new Date();
 
-    const err = validateActivity(newActivity);
+    const err = Activity.validateActivity(newActivity);
     if (err) {
         res.status(422).json({ message: `Invalid request: ${err}` });
         return;
