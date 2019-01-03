@@ -1,50 +1,22 @@
 # diabetes-self-management-app
 
-<b>MongoDB-for-Diabetes-Self-Management-App</b><br>
-Modifying the server code of the diabetes self management app so that it uses a MongoDB database to store its data. Also the front end code is updated so that it works correctly with the modified server.<br>
+<b>Diabetes-Self-Management-App</b><br>
+Focus on using development tools to split the code into multiple files, both on the server and the client side.<br>
 
-MongoDB Basics<br>
-MongoDB is a document database. (record = document or object)<br>
-A document is a data structure composed of field and value pairs.<br>
-Compared to a JSON object, a MongoDB document has support not only for the primitive data types boolean, numbers, and strings, but also other common data types such as dates, timestamps, regular expressions, and binary data.<br>
+Server-Side Modules<br>
+Separate activity.js and use module.export to export for server.js to use<br>
 
-Collections<br>
-Collections is like a table in a relational database. It is a set of documents, and you access each document via the collection. Primary key is mandated in MongoDB with the reserved field name _id.
-Unlike a relational database, MongoDB does not require you to define a schema for a collection but just a unique _id. Actual documents may have completely different fields.<br>
+Introduction to Webpack<br>
+For automatic dependency management, use webpack to define dependencies. Compared to browserify, webpack is simpler to separating bundles for third-party libraries and my own modules. It has a single pipeline to transform, bundle, and watch for changes and generate new bundles as fast as possible.<br>
 
-Query Languages<br>
-Unlike SQL, MongoDB query language is made up of methods to achieve various operations.
-Unlike relational databases, no method that can operate on multiple collections at once. If needed, each collection has to be queried separately and manipulated by the client.<br>
-Unlike relational databases, MongoDB encourages denormalization - storing related parts of a document as embedded subdocuments rather than as separate collections (tables) in a relational database.<br>
+Using Webpack Manually<br>
+Install webpack module with npm and run webpack. Webpack cannot handle JSX natively so it is first run against App.js instead of App.jsx. <br>Use ES2015 export default and import to separate ActivityAdd.jsx. This was not doable in the server-side because Node.js does not support this style natively. Use default keyword if exporting a single class, and you want it to be the result of an import statement directly (or a top-level export).<br>Once compiling, running webpack will have it look at the import statements within each of the js files and figure out the dependency tree.<br>
 
-The Mongo Shell<br>
-db; use 'db name'; show databases; show collections;<br>
-db.employees.insert({...}); db.employees.find().pretty();<br>
-supplying filter .find({ filter })<br>
-restrict returned fields with second parameter .find({ filter }, { restriction })<br>
-update a document .update({ filter }, {$set: { fields to update }})<br>
-.remove({ filter })<br>
+Transform and Bundle<br>
+Instead of manually transforming JSX files and using webpack to bundle them together, webpack and its helper, babel-loader, can combine these two steps. (install babel-loader module).<br>
+Rather than using loaders in the command line, you can use a configuration file to give these parameters to webpack. (webpack.config.js) Webpack loads this configuration file as a module and gets its parameters from this module. Everything has to be under one exported object. Inside the exported object, webpack looks for various properties, and entry, output, module props are used. Running webpack now allows bundle, transform, and watch automatically. All class components are separted.<br>
 
-Shell Scripting<br>
-mongo shell script is a regular JS program, with all the collection methods available as built-ins. One difference from interactive shell is that you don't have the convenience commands such as use and the default global variable db. You must initialize them within the shell script programmatcially.<br>
+Libraries Bundle<br>
+Now using webpack to create a bundle that includes the libraries for the client-side.
+react, react-dom, whatwg-fetch, and babel-polyfill installed with npm. fetch is imported into the global namespace because it is expected to be a substitute for window.fetch(), which should be available in the browser in any case. Bundle becomes quite large to run webpack on every change so it is separated into two bundles, one for the application code and another for all the libraries using CommonsChunkPlugin.
 
-Schema Initialization<br>
-No such thing as schema initialization but just create indexes that will prove useful for often used filters in the application.<br>
-
-MongoDB Node.js Driver<br>
-This is the Node.js driver that lets you connect and interact with the MongoDB server. (mongodb module from npm) To connect to the database from a Node.js program, use the connect method on the MongoClient object provided by the module.<br>
-Use connect(URL-like string parameter, callback) to connect<br>
-collection() to get a handle to any collection<br>
-find() returns a cursor which you could iterate over
-toArray() on the cursur runs through all the documents and make an array out of them. It calls the callback when the array is ready to be processed, passing the array as a parameter to the callback.<br>
-ALl calls to the driver are asynchronous calls - you don't get the result of the call as a return value to the function call.<br>
-Different paradigms for dealing with this asynchronous natutre: callbacks, promises, or co module and generator functions. (also async module)<br>
-
-Reading from MongoDB<br>
-Include the MongoDB driver in the server.js and connect to MongoDB server.<br>
-Express server is started once we get the connection to MongoDB.
-Endpoint handler is modified to read from the database. Front end is updated with the MongoDB _id field and now handles possible non-successful HTTP status code from the List API.<br>
-
-Writing to MongoDB<br>
-Using MongoDB's insert method to create a new record in the Create API.<br>
-Need to read back the object that was just created and return it as the result of the API call.
